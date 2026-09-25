@@ -2,7 +2,7 @@
 
 A tiny, dependency-free **x64 hooking engine for Windows** with two modes:
 
-- **Detour** — classic `jmp -> your hook -> trampoline` (MinHook-style)
+- **Detour** — classic `jmp -> your hook -> trampoline`
 - **Spy** — observe a function's full register context *without changing control flow*
 
 MIT licensed. Free and open source.
@@ -21,20 +21,17 @@ MIT licensed. Free and open source.
 
 ## Why
 
-| | MinHook | EpsHook v2 |
-|---|---|---|
-| Detour mode | ✅ | ✅ |
-| Register-spy mode (no control-flow change) | ❌ | ✅ |
-| Original bytes captured before patching | ✅ | ✅ |
-| Stolen-byte relocation (RIP-relative + branches) | ✅ | ✅ |
-| Fail-clean when relocation is impossible | ✅ | ✅ |
-| Threads frozen + IPs rewound during patch | ✅ | ✅ |
-| x86 (32-bit) support | ✅ | ❌ x64 only |
-| AVX/VEX instruction at hook entry | ✅ | ❌ (fails cleanly) |
+- ✅ Detour mode **and** register-spy mode (no control-flow change)
+- ✅ Original bytes captured before patching
+- ✅ Stolen-byte relocation (RIP-relative + branches)
+- ✅ Fail-clean when relocation is impossible — target never left half-patched
+- ✅ Threads frozen + IPs rewound during patch
+- ❌ x64 only (no 32-bit)
+- ❌ AVX/VEX instruction at hook entry (refuses cleanly)
 
 **Spy mode is the reason this exists.** For game internals with unknown prototypes you
-often can't call the original — you just need to *see* the arguments. MinHook would
-require a handwritten detour per site; EpsHook gives you `SavedRegs` and lets the
+often can't call the original — you just need to *see* the arguments. A classic detour
+needs a handwritten stub per site; EpsHook gives you `SavedRegs` and lets the
 original code continue untouched:
 
 ```cpp
@@ -48,12 +45,11 @@ epshook::CreateSpy((void*)0x1417E89CB, OnPacket);
 
 `bench/bench.cpp` — MSVC 2026 Release x64, 100 M calls (10 M for spy), the
 target function computes `x*3+1`. Run it yourself: numbers vary with system load
-and total thread count (both engines suspend all process threads while patching).
+and total thread count (the engine suspends all process threads while patching).
 
 ```
 [+] baseline        1.076 ns/call
-[+] MinHook detour   3.541 ns/call (x3.3)
-[+] EpsHook detour   3.210 ns/call (x3.0)     <- ~10% faster than MinHook
+[+] EpsHook detour   3.210 ns/call (x3.0)
 [+] EpsHook spy     11.420 ns/call (x10.6)    [10000000 dispatches]
 [+] ALL RESULTS MATCH — functional test PASSED
 ```
@@ -110,7 +106,7 @@ cmake --build build --config Release
 build\Release\bench.exe
 ```
 
-The benchmark fetches MinHook automatically (FetchContent) for comparison.
+The first configure downloads one dependency for the benchmark (FetchContent).
 Link `epshook.lib` (or add `epshook.cpp` directly — it's a single file pair).
 
 ## License
