@@ -1,0 +1,7 @@
+build/
+.vs/
+out/
+cmake-build-*/
+FetchContent/
+_deps/
+*.user
