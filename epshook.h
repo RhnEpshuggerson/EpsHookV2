@@ -33,7 +33,7 @@ enum Status {
     ERR_UNSUPPORTED, // instruction at target unsupported (e.g. VEX/EVEX)
 };
 
-// No global setup required; provided for MinHook familiarity.
+// No global setup required.
 Status Initialize();
 
 // Optional logging sink (default: silent).
